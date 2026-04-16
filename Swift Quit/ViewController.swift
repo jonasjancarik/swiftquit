@@ -9,8 +9,6 @@ import Cocoa
 import LaunchAtLogin
 
 class ViewController: NSViewController, NSTableViewDelegate, NSWindowDelegate {
-    @objc dynamic var launchAtLogin = LaunchAtLogin.kvo
-    
     @IBOutlet weak var launchHiddenSwitch: NSSwitch!
     @IBOutlet weak var displayMenubarIcon: NSSwitch!
     @IBOutlet weak var excludeBehaviourPopupOutlet: NSPopUpButton!
@@ -36,8 +34,7 @@ class ViewController: NSViewController, NSTableViewDelegate, NSWindowDelegate {
     }
     
     func setupViews() {
-        print("launch at login:")
-        print(launchAtLogin)
+        syncLaunchAtLoginState()
 
         if(swiftQuitSettings["menubarIconEnabled"] == "true"){
             displayMenubarIcon.state = NSControl.StateValue.on
@@ -63,6 +60,17 @@ class ViewController: NSViewController, NSTableViewDelegate, NSWindowDelegate {
         closeDelayTextField.stringValue = swiftQuitSettings["closeDelay"] ?? "2"
     }
 
+    private func syncLaunchAtLoginState() {
+        let isEnabled = LaunchAtLogin.isEnabled
+        launchAtLoginSwitch.state = isEnabled ? .on : .off
+
+        if isEnabled {
+            SwiftQuit.enableLaunchAtLogin()
+        } else {
+            SwiftQuit.disableLaunchAtLogin()
+        }
+    }
+
     @objc func closeDelayChanged(_ sender: NSTextField) {
         let value = sender.stringValue
         // Validate that it's a positive number
@@ -75,18 +83,8 @@ class ViewController: NSViewController, NSTableViewDelegate, NSWindowDelegate {
     }
     
     @IBAction func launchAtLoginToggle(_ sender: Any) {
-        
-        if launchAtLoginSwitch.state == NSControl.StateValue.on {
-            SwiftQuit.enableLaunchAtLogin()
-            LaunchAtLogin.isEnabled = true
-
-        }
-        else{
-            SwiftQuit.disableLaunchAtLogin()
-            LaunchAtLogin.isEnabled = false
-
-        }
-        
+        LaunchAtLogin.isEnabled = (launchAtLoginSwitch.state == .on)
+        syncLaunchAtLoginState()
     }
     
     @IBAction func displayMenubarIconToggle(_ sender: Any) {
