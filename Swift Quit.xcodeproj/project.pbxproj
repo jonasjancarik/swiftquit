@@ -7,207 +7,311 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B27644922864C3BC000259CC /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = B27644912864C3BC000259CC /* LaunchAtLogin */; };
-		B281175728732DA40080A780 /* Swindler in Frameworks */ = {isa = PBXBuildFile; productRef = B281175628732DA40080A780 /* Swindler */; };
-		B2C8BE1C283EBF8F00DB5C94 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8BE1B283EBF8F00DB5C94 /* AppDelegate.swift */; };
-		B2C8BE1E283EBF8F00DB5C94 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8BE1D283EBF8F00DB5C94 /* ViewController.swift */; };
-		B2C8BE20283EBF9100DB5C94 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B2C8BE1F283EBF9100DB5C94 /* Assets.xcassets */; };
-		B2C8BE23283EBF9100DB5C94 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B2C8BE21283EBF9100DB5C94 /* Main.storyboard */; };
-		B2C8BE2B283EC5D400DB5C94 /* SwiftQuit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C8BE2A283EC5D400DB5C94 /* SwiftQuit.swift */; };
+		A10000000000000000000101 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000011 /* AppDelegate.swift */; };
+		A10000000000000000000102 /* AppLoggers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* AppLoggers.swift */; };
+		A10000000000000000000103 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* AppSettings.swift */; };
+		A10000000000000000000104 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000010 /* Assets.xcassets */; };
+		A10000000000000000000105 /* ApplicationCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000017 /* ApplicationCatalog.swift */; };
+		A10000000000000000000106 /* AccessibilityPermissionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000018 /* AccessibilityPermissionController.swift */; };
+		A10000000000000000000107 /* AccessibilityMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000019 /* AccessibilityMonitor.swift */; };
+		A10000000000000000000108 /* LoginItemController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001A /* LoginItemController.swift */; };
+		A10000000000000000000109 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001B /* SettingsStore.swift */; };
+		A1000000000000000000010A /* TerminationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001C /* TerminationController.swift */; };
+		A1000000000000000000010B /* TerminationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001D /* TerminationEngine.swift */; };
+		A1000000000000000000010C /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001E /* AppInfo.swift */; };
+		A1000000000000000000010D /* AppRuleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001F /* AppRuleRowView.swift */; };
+		A1000000000000000000010E /* MenuBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000020 /* MenuBarController.swift */; };
+		A1000000000000000000010F /* SettingsRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000021 /* SettingsRootView.swift */; };
+		A10000000000000000000110 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000022 /* SettingsViewModel.swift */; };
+		A10000000000000000000111 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000023 /* SettingsWindowController.swift */; };
+		A10000000000000000000112 /* TerminationEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000024 /* TerminationEngineTests.swift */; };
+		A10000000000000000000113 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000025 /* SettingsStoreTests.swift */; };
+		A10000000000000000000114 /* LoginItemControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000026 /* LoginItemControllerTests.swift */; };
+		A10000000000000000000115 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000D /* XCTest.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000201 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000002;
+			remoteInfo = "Swift Quit";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		B2C8BE18283EBF8E00DB5C94 /* Swift Quit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Swift Quit.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B2C8BE1B283EBF8F00DB5C94 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B2C8BE1D283EBF8F00DB5C94 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		B2C8BE1F283EBF9100DB5C94 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		B2C8BE22283EBF9100DB5C94 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		B2C8BE24283EBF9100DB5C94 /* Swift_Quit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Swift_Quit.entitlements; sourceTree = "<group>"; };
-		B2C8BE2A283EC5D400DB5C94 /* SwiftQuit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftQuit.swift; sourceTree = "<group>"; };
-		B2C8BE2C283ECF1600DB5C94 /* Swift-Quit-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Swift-Quit-Info.plist"; sourceTree = SOURCE_ROOT; };
+		A1000000000000000000000B /* Swift Quit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Swift Quit.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000000000000000000000C /* Swift QuitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Swift QuitTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000000000000000000000D /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
+		A1000000000000000000000E /* Swift-Quit-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Swift-Quit-Info.plist"; sourceTree = SOURCE_ROOT; };
+		A1000000000000000000000F /* Swift_Quit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Swift_Quit.entitlements; sourceTree = "<group>"; };
+		A10000000000000000000010 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10000000000000000000011 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A10000000000000000000012 /* AppLoggers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLoggers.swift; sourceTree = "<group>"; };
+		A10000000000000000000013 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A10000000000000000000017 /* ApplicationCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationCatalog.swift; sourceTree = "<group>"; };
+		A10000000000000000000018 /* AccessibilityPermissionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityPermissionController.swift; sourceTree = "<group>"; };
+		A10000000000000000000019 /* AccessibilityMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityMonitor.swift; sourceTree = "<group>"; };
+		A1000000000000000000001A /* LoginItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemController.swift; sourceTree = "<group>"; };
+		A1000000000000000000001B /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		A1000000000000000000001C /* TerminationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminationController.swift; sourceTree = "<group>"; };
+		A1000000000000000000001D /* TerminationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminationEngine.swift; sourceTree = "<group>"; };
+		A1000000000000000000001E /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
+		A1000000000000000000001F /* AppRuleRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRuleRowView.swift; sourceTree = "<group>"; };
+		A10000000000000000000020 /* MenuBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarController.swift; sourceTree = "<group>"; };
+		A10000000000000000000021 /* SettingsRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRootView.swift; sourceTree = "<group>"; };
+		A10000000000000000000022 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		A10000000000000000000023 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
+		A10000000000000000000024 /* TerminationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminationEngineTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000025 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
+		A10000000000000000000026 /* LoginItemControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemControllerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		B2C8BE15283EBF8E00DB5C94 /* Frameworks */ = {
+		A10000000000000000000301 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B281175728732DA40080A780 /* Swindler in Frameworks */,
-				B27644922864C3BC000259CC /* LaunchAtLogin in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000302 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000115 /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B2811750287244850080A780 /* Frameworks */ = {
+		A10000000000000000000004 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		B2C8BE0F283EBF8E00DB5C94 = {
-			isa = PBXGroup;
-			children = (
-				B2C8BE1A283EBF8E00DB5C94 /* Swift Quit */,
-				B2C8BE19283EBF8E00DB5C94 /* Products */,
-				B2811750287244850080A780 /* Frameworks */,
-			);
-			sourceTree = "<group>";
-		};
-		B2C8BE19283EBF8E00DB5C94 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B2C8BE18283EBF8E00DB5C94 /* Swift Quit.app */,
+				A1000000000000000000000B /* Swift Quit.app */,
+				A1000000000000000000000C /* Swift QuitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B2C8BE1A283EBF8E00DB5C94 /* Swift Quit */ = {
+		A10000000000000000000005 /* Swift Quit */ = {
 			isa = PBXGroup;
 			children = (
-				B2C8BE2C283ECF1600DB5C94 /* Swift-Quit-Info.plist */,
-				B2C8BE1B283EBF8F00DB5C94 /* AppDelegate.swift */,
-				B2C8BE1D283EBF8F00DB5C94 /* ViewController.swift */,
-				B2C8BE1F283EBF9100DB5C94 /* Assets.xcassets */,
-				B2C8BE21283EBF9100DB5C94 /* Main.storyboard */,
-				B2C8BE24283EBF9100DB5C94 /* Swift_Quit.entitlements */,
-				B2C8BE2A283EC5D400DB5C94 /* SwiftQuit.swift */,
+				A1000000000000000000000E /* Swift-Quit-Info.plist */,
+				A1000000000000000000000F /* Swift_Quit.entitlements */,
+				A10000000000000000000010 /* Assets.xcassets */,
+				A10000000000000000000011 /* AppDelegate.swift */,
+				A10000000000000000000012 /* AppLoggers.swift */,
+				A10000000000000000000013 /* AppSettings.swift */,
+				A10000000000000000000007 /* Services */,
+				A10000000000000000000009 /* Support */,
+				A10000000000000000000008 /* UI */,
 			);
 			path = "Swift Quit";
+			sourceTree = "<group>";
+		};
+		A10000000000000000000006 /* Swift QuitTests */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000024 /* TerminationEngineTests.swift */,
+				A10000000000000000000025 /* SettingsStoreTests.swift */,
+				A10000000000000000000026 /* LoginItemControllerTests.swift */,
+			);
+			path = "Swift QuitTests";
+			sourceTree = "<group>";
+		};
+		A10000000000000000000007 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000017 /* ApplicationCatalog.swift */,
+				A10000000000000000000018 /* AccessibilityPermissionController.swift */,
+				A10000000000000000000019 /* AccessibilityMonitor.swift */,
+				A1000000000000000000001A /* LoginItemController.swift */,
+				A1000000000000000000001B /* SettingsStore.swift */,
+				A1000000000000000000001C /* TerminationController.swift */,
+				A1000000000000000000001D /* TerminationEngine.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000008 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000001F /* AppRuleRowView.swift */,
+				A10000000000000000000020 /* MenuBarController.swift */,
+				A10000000000000000000021 /* SettingsRootView.swift */,
+				A10000000000000000000022 /* SettingsViewModel.swift */,
+				A10000000000000000000023 /* SettingsWindowController.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000009 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000001E /* AppInfo.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		A1000000000000000000000A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000000D /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000014 = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000005 /* Swift Quit */,
+				A10000000000000000000006 /* Swift QuitTests */,
+				A10000000000000000000004 /* Products */,
+				A1000000000000000000000A /* Frameworks */,
+			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B2C8BE17283EBF8E00DB5C94 /* Swift Quit */ = {
+		A10000000000000000000002 /* Swift Quit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B2C8BE27283EBF9100DB5C94 /* Build configuration list for PBXNativeTarget "Swift Quit" */;
+			buildConfigurationList = A10000000000000000000401 /* Build configuration list for PBXNativeTarget "Swift Quit" */;
 			buildPhases = (
-				B2C8BE14283EBF8E00DB5C94 /* Sources */,
-				B2C8BE15283EBF8E00DB5C94 /* Frameworks */,
-				B2C8BE16283EBF8E00DB5C94 /* Resources */,
-				B297CFB12866116B00C48ABC /* Launch at Login Helper */,
+				A10000000000000000000311 /* Sources */,
+				A10000000000000000000301 /* Frameworks */,
+				A10000000000000000000321 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = "Swift Quit";
-			packageProductDependencies = (
-				B27644912864C3BC000259CC /* LaunchAtLogin */,
-				B281175628732DA40080A780 /* Swindler */,
-			);
 			productName = "Swift Quit";
-			productReference = B2C8BE18283EBF8E00DB5C94 /* Swift Quit.app */;
+			productReference = A1000000000000000000000B /* Swift Quit.app */;
 			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000003 /* Swift QuitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000402 /* Build configuration list for PBXNativeTarget "Swift QuitTests" */;
+			buildPhases = (
+				A10000000000000000000312 /* Sources */,
+				A10000000000000000000302 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A10000000000000000000501 /* PBXTargetDependency */,
+			);
+			name = "Swift QuitTests";
+			productName = "Swift QuitTests";
+			productReference = A1000000000000000000000C /* Swift QuitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		B2C8BE10283EBF8E00DB5C94 /* Project object */ = {
+		A10000000000000000000001 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1330;
-				LastUpgradeCheck = 1330;
-				TargetAttributes = {
-					B2C8BE17283EBF8E00DB5C94 = {
-						CreatedOnToolsVersion = 13.3.1;
+				BuildIndependentTargetsInParallel = YES;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+					TargetAttributes = {
+						A10000000000000000000002 = {
+							CreatedOnToolsVersion = 16.0;
+							ProvisioningStyle = Automatic;
+						};
+						A10000000000000000000003 = {
+							CreatedOnToolsVersion = 16.0;
+							TestTargetID = A10000000000000000000002;
+						};
 					};
-				};
 			};
-			buildConfigurationList = B2C8BE13283EBF8E00DB5C94 /* Build configuration list for PBXProject "Swift Quit" */;
+			buildConfigurationList = A10000000000000000000400 /* Build configuration list for PBXProject "Swift Quit" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 			);
-			mainGroup = B2C8BE0F283EBF8E00DB5C94;
-			packageReferences = (
-				B2C8BE2D283EF54B00DB5C94 /* XCRemoteSwiftPackageReference "Swindler" */,
-				B27644902864C3BC000259CC /* XCRemoteSwiftPackageReference "LaunchAtLogin" */,
-				B2811748287240000080A780 /* XCRemoteSwiftPackageReference "Swindler" */,
-				B281174B287243B40080A780 /* XCRemoteSwiftPackageReference "Swindler" */,
-			);
-			productRefGroup = B2C8BE19283EBF8E00DB5C94 /* Products */;
+			mainGroup = A10000000000000000000014;
+			productRefGroup = A10000000000000000000004 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B2C8BE17283EBF8E00DB5C94 /* Swift Quit */,
+				A10000000000000000000002 /* Swift Quit */,
+				A10000000000000000000003 /* Swift QuitTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		B2C8BE16283EBF8E00DB5C94 /* Resources */ = {
+		A10000000000000000000321 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2C8BE20283EBF9100DB5C94 /* Assets.xcassets in Resources */,
-				B2C8BE23283EBF9100DB5C94 /* Main.storyboard in Resources */,
+				A10000000000000000000104 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		B297CFB12866116B00C48ABC /* Launch at Login Helper */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Launch at Login Helper";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${BUILT_PRODUCTS_DIR}/LaunchAtLogin_LaunchAtLogin.bundle/Contents/Resources/copy-helper-swiftpm.sh\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
-		B2C8BE14283EBF8E00DB5C94 /* Sources */ = {
+		A10000000000000000000311 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2C8BE2B283EC5D400DB5C94 /* SwiftQuit.swift in Sources */,
-				B2C8BE1E283EBF8F00DB5C94 /* ViewController.swift in Sources */,
-				B2C8BE1C283EBF8F00DB5C94 /* AppDelegate.swift in Sources */,
+				A10000000000000000000101 /* AppDelegate.swift in Sources */,
+				A10000000000000000000102 /* AppLoggers.swift in Sources */,
+				A10000000000000000000103 /* AppSettings.swift in Sources */,
+				A10000000000000000000105 /* ApplicationCatalog.swift in Sources */,
+				A10000000000000000000106 /* AccessibilityPermissionController.swift in Sources */,
+				A10000000000000000000107 /* AccessibilityMonitor.swift in Sources */,
+				A10000000000000000000108 /* LoginItemController.swift in Sources */,
+				A10000000000000000000109 /* SettingsStore.swift in Sources */,
+				A1000000000000000000010A /* TerminationController.swift in Sources */,
+				A1000000000000000000010B /* TerminationEngine.swift in Sources */,
+				A1000000000000000000010C /* AppInfo.swift in Sources */,
+				A1000000000000000000010D /* AppRuleRowView.swift in Sources */,
+				A1000000000000000000010E /* MenuBarController.swift in Sources */,
+				A1000000000000000000010F /* SettingsRootView.swift in Sources */,
+				A10000000000000000000110 /* SettingsViewModel.swift in Sources */,
+				A10000000000000000000111 /* SettingsWindowController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A10000000000000000000312 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000112 /* TerminationEngineTests.swift in Sources */,
+				A10000000000000000000113 /* SettingsStoreTests.swift in Sources */,
+				A10000000000000000000114 /* LoginItemControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXVariantGroup section */
-		B2C8BE21283EBF9100DB5C94 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				B2C8BE22283EBF9100DB5C94 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
+/* Begin PBXTargetDependency section */
+		A10000000000000000000501 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000002 /* Swift Quit */;
+			targetProxy = A10000000000000000000201 /* PBXContainerItemProxy */;
 		};
-/* End PBXVariantGroup section */
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		B2C8BE25283EBF9100DB5C94 /* Debug */ = {
+		A10000000000000000000600 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -251,7 +355,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -261,13 +365,13 @@
 			};
 			name = Debug;
 		};
-		B2C8BE26283EBF9100DB5C94 /* Release */ = {
+		A10000000000000000000601 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -305,7 +409,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -314,140 +418,285 @@
 			};
 			name = Release;
 		};
-		B2C8BE28283EBF9100DB5C94 /* Debug */ = {
+		A10000000000000000000602 /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCH = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Swift Quit/Swift_Quit.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U746773QG4;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Distribution;
+		};
+		A10000000000000000000610 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+					ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+					CODE_SIGN_ENTITLEMENTS = "Swift Quit/Swift_Quit.entitlements";
+					CODE_SIGN_IDENTITY = "-";
+					CODE_SIGN_STYLE = Manual;
+					COMBINE_HIDPI_IMAGES = YES;
+					CURRENT_PROJECT_VERSION = 2;
+					ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Swift-Quit-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.5;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "onebadidea.Swift-Quit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
-		B2C8BE29283EBF9100DB5C94 /* Release */ = {
+		A10000000000000000000611 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCH = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Swift Quit/Swift_Quit.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = U746773QG4;
-				ENABLE_HARDENED_RUNTIME = YES;
+				ARCHS = "$(ARCHS_STANDARD)";
+					ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+					CODE_SIGN_ENTITLEMENTS = "Swift Quit/Swift_Quit.entitlements";
+					CODE_SIGN_IDENTITY = "-";
+					CODE_SIGN_STYLE = Manual;
+					COMBINE_HIDPI_IMAGES = YES;
+					CURRENT_PROJECT_VERSION = 2;
+					ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Swift-Quit-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
-				MARKETING_VERSION = 1.5;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "onebadidea.Swift-Quit";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
+		};
+		A10000000000000000000612 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+					ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+					ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+					CODE_SIGN_ENTITLEMENTS = "Swift Quit/Swift_Quit.entitlements";
+					CODE_SIGN_IDENTITY = "Developer ID Application";
+					CODE_SIGN_STYLE = Manual;
+					COMBINE_HIDPI_IMAGES = YES;
+					CURRENT_PROJECT_VERSION = 2;
+					ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Swift-Quit-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "onebadidea.Swift-Quit";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Distribution;
+		};
+		A10000000000000000000620 /* Debug */ = {
+			isa = XCBuildConfiguration;
+				buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_IDENTITY = "-";
+					CODE_SIGN_STYLE = Manual;
+					CURRENT_PROJECT_VERSION = 2;
+					GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "onebadidea.Swift-QuitTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Swift Quit.app/Contents/MacOS/Swift Quit";
+				TEST_TARGET_NAME = "Swift Quit";
+			};
+			name = Debug;
+		};
+		A10000000000000000000621 /* Release */ = {
+			isa = XCBuildConfiguration;
+				buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_IDENTITY = "-";
+					CODE_SIGN_STYLE = Manual;
+					CURRENT_PROJECT_VERSION = 2;
+					GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "onebadidea.Swift-QuitTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Swift Quit.app/Contents/MacOS/Swift Quit";
+				TEST_TARGET_NAME = "Swift Quit";
+			};
+			name = Release;
+		};
+		A10000000000000000000622 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+				buildSettings = {
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_IDENTITY = "-";
+					CODE_SIGN_STYLE = Manual;
+					CURRENT_PROJECT_VERSION = 2;
+					GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "onebadidea.Swift-QuitTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Swift Quit.app/Contents/MacOS/Swift Quit";
+				TEST_TARGET_NAME = "Swift Quit";
+			};
+			name = Distribution;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B2C8BE13283EBF8E00DB5C94 /* Build configuration list for PBXProject "Swift Quit" */ = {
+		A10000000000000000000400 /* Build configuration list for PBXProject "Swift Quit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B2C8BE25283EBF9100DB5C94 /* Debug */,
-				B2C8BE26283EBF9100DB5C94 /* Release */,
+				A10000000000000000000600 /* Debug */,
+				A10000000000000000000601 /* Release */,
+				A10000000000000000000602 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B2C8BE27283EBF9100DB5C94 /* Build configuration list for PBXNativeTarget "Swift Quit" */ = {
+		A10000000000000000000401 /* Build configuration list for PBXNativeTarget "Swift Quit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B2C8BE28283EBF9100DB5C94 /* Debug */,
-				B2C8BE29283EBF9100DB5C94 /* Release */,
+				A10000000000000000000610 /* Debug */,
+				A10000000000000000000611 /* Release */,
+				A10000000000000000000612 /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000402 /* Build configuration list for PBXNativeTarget "Swift QuitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000620 /* Debug */,
+				A10000000000000000000621 /* Release */,
+				A10000000000000000000622 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		B27644902864C3BC000259CC /* XCRemoteSwiftPackageReference "LaunchAtLogin" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		B2811748287240000080A780 /* XCRemoteSwiftPackageReference "Swindler" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tmandry/Swindler";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		B281174B287243B40080A780 /* XCRemoteSwiftPackageReference "Swindler" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tmandry/Swindler";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-		B2C8BE2D283EF54B00DB5C94 /* XCRemoteSwiftPackageReference "Swindler" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tmandry/Swindler";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		B27644912864C3BC000259CC /* LaunchAtLogin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B27644902864C3BC000259CC /* XCRemoteSwiftPackageReference "LaunchAtLogin" */;
-			productName = LaunchAtLogin;
-		};
-		B281175628732DA40080A780 /* Swindler */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B281174B287243B40080A780 /* XCRemoteSwiftPackageReference "Swindler" */;
-			productName = Swindler;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = B2C8BE10283EBF8E00DB5C94 /* Project object */;
+	rootObject = A10000000000000000000001 /* Project object */;
 }
