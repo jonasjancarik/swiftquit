@@ -87,12 +87,9 @@ private struct BehaviorSection: View {
                 )
             )
 
-            Stepper(value: $viewModel.closeDelaySeconds, in: 1...30) {
-                LabeledContent("Close delay") {
-                    Text(viewModel.closeDelaySummary)
-                        .monospacedDigit()
-                }
-            }
+            Text("Clicking the red close button quits an app when that is its last standard window. If other windows are open, only the clicked window closes.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
         }
     }
 }
@@ -102,19 +99,8 @@ private struct SafetySection: View {
 
     var body: some View {
         Section("Safety") {
-            Picker("Profile", selection: $viewModel.safetyProfile) {
-                ForEach(TerminationSafetyProfile.allCases) { profile in
-                    Text(profile.title).tag(profile)
-                }
-            }
-            .pickerStyle(.segmented)
-
-            Text(viewModel.safetyProfileSummary)
-                .font(.callout)
-                .foregroundStyle(.secondary)
-
-            Toggle("Protect browser hosts and web apps", isOn: $viewModel.protectBrowserHosts)
-            Toggle("Protect accessory and background apps", isOn: $viewModel.protectAccessoryApps)
+            Toggle("Keep browsers and web apps running", isOn: $viewModel.protectBrowserHosts)
+            Toggle("Keep accessory and background apps running", isOn: $viewModel.protectAccessoryApps)
             Toggle("Count minimized windows as open", isOn: $viewModel.countMinimizedWindowsAsOpen)
             Toggle("Count hidden apps and windows as open", isOn: $viewModel.countHiddenWindowsAsOpen)
 

@@ -1,16 +1,15 @@
 # Swift Quit
 
-Swift Quit is a dockless macOS menu bar utility that quits apps when their last window closes.
+Swift Quit is a dockless macOS menu bar utility that makes the red close button quit an app when it closes that app's last standard window.
 
 This fork targets `macOS 15+` and keeps the original product shape intact:
 
 - menu bar utility with `LSUIElement = true`
 - explicit include or exclude rules for bundled apps
-- configurable close delay
-- conservative, balanced, and aggressive safety profiles
-- native Accessibility monitoring built on `AXObserver` and `AXUIElement`
+- RedQuits-style handling that distinguishes the last standard window before it closes
+- native Accessibility monitoring built on `AXUIElement`
 - native launch-at-login integration built on `SMAppService`
-- event-driven termination checks with no continuous background polling
+- event-driven close-button checks with no continuous background polling
 
 ## Requirements
 
@@ -20,9 +19,11 @@ This fork targets `macOS 15+` and keeps the original product shape intact:
 
 ## How It Works
 
-Swift Quit listens for application window changes through the Accessibility APIs. It does not continuously poll running apps.
+Swift Quit installs a global left-click monitor. When a click lands on an enabled Accessibility close button, it snapshots that app's windows before macOS handles the close.
 
-When a candidate app appears to have closed its last window, Swift Quit waits for the configured delay, re-queries the app's current Accessibility window list, and decides whether the app should be terminated.
+If the clicked window is the app's only standard window, Swift Quit sends the app a normal quit request immediately. This avoids the windowless state that can make apps such as Pages and TextEdit open a document chooser. If two or more standard windows are open, Swift Quit does nothing and macOS closes only the clicked window normally.
+
+Dialogs, sheets, palettes, and other auxiliary windows do not count as standard windows. Ambiguous Accessibility results are skipped rather than risking an incorrect quit. Keyboard commands such as Command-W are not intercepted.
 
 If an app ignores a quit request, Swift Quit briefly verifies the result and then enters a short per-app cooldown instead of repeatedly hammering the same process.
 
@@ -30,20 +31,12 @@ Rule precedence is:
 
 1. protected apps are never terminated
 2. explicit include or exclude rules are applied
-3. advanced safety protections skip risky app classes such as browser hosts, accessory/background apps, hidden apps, and minimized/hidden windows
-4. the active safety profile controls retry and confirmation strictness for the remaining candidate
+3. optional safety protections can keep browser hosts, accessory/background apps, hidden apps, and apps with minimized or hidden standard windows running
+4. the pre-close snapshot must contain exactly one qualifying standard window
 
 Protected apps include Swift Quit itself plus core system processes such as Finder, Dock, `SystemUIServer`, Control Center, Spotlight, and `loginwindow`.
 
-## Safety Profiles
-
-- `Conservative`: two zero-window polls 750 ms apart, skips any ambiguous Accessibility state
-- `Balanced`: one zero-window poll after the delay, retries once after 500 ms on Accessibility inconsistency
-- `Aggressive`: quits on the first clear zero-window poll after protected apps and advanced safety protections are applied
-
-`Balanced` is the default.
-
-Advanced safety options are enabled by default. They preserve browser hosts and known Safari/Chromium/Edge/Brave web app wrappers, accessory/background apps, minimized windows, and hidden apps/windows unless you explicitly opt into the risk in Settings.
+Accessory/background apps, minimized windows, and hidden apps/windows are protected by default. Browser protection is optional and disabled by default, so Safari and other browsers receive the same last-window behavior as other regular apps.
 
 ## First Launch
 
@@ -84,10 +77,8 @@ The settings window is implemented in SwiftUI and exposes:
 - launch at login
 - menu bar icon visibility
 - whether confirmed background launches hide Settings
-- close delay in seconds
 - rule mode: all apps except listed, or only listed apps
-- safety profile
-- advanced safety options for browser hosts, accessory apps, minimized windows, and hidden apps/windows
+- safety options for browsers and web apps, accessory/background apps, minimized windows, and hidden apps/windows
 - app rules with icon, display name, and resolved bundle path metadata
 - diagnostics for Accessibility permission, launch-at-login state, active safety options, and recent termination decisions
 
@@ -119,7 +110,8 @@ xcodebuild test -project "Swift Quit.xcodeproj" -scheme "Swift Quit" -destinatio
 
 The unit suite covers:
 
-- termination rule precedence, safety options, and safety-profile decisions
+- last-window close-button decisions, multi-window behavior, dialogs, ambiguous state, and Safari behavior
+- termination rule precedence and safety options
 - settings-presentation policy for launch, activation, and reopen flows
 - legacy defaults and safety-option migration into the typed settings store
 - migration idempotence and migration-version behavior
@@ -134,6 +126,7 @@ On first launch after upgrading, Swift Quit migrates the legacy `SwiftQuitSettin
 
 - Swift Quit only accepts bundled `.app` selections in the app-rule picker.
 - Hidden apps/windows and minimized windows count as open by default.
-- Advanced safety options can relax browser-host, accessory-app, hidden-window, and minimized-window protections.
+- Browser-host protection can be enabled when browsers should stay running after their last window closes.
+- Accessory-app, hidden-window, and minimized-window protections can be relaxed in Settings.
 - Returning from System Settings refreshes permission and login-item state without forcing Settings back open after you close it.
 - Storyboard UI and older third-party window-monitoring dependencies were removed in favor of native macOS APIs.

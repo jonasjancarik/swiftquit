@@ -60,7 +60,7 @@ struct SafetyOptions: Codable, Equatable {
     var countHiddenWindowsAsOpen: Bool
 
     static let `default` = SafetyOptions(
-        protectBrowserHosts: true,
+        protectBrowserHosts: false,
         protectAccessoryApps: true,
         countMinimizedWindowsAsOpen: true,
         countHiddenWindowsAsOpen: true

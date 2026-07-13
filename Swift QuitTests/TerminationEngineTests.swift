@@ -228,40 +228,47 @@ final class TerminationEngineTests: XCTestCase {
     }
 
     @MainActor
-    func testBrowserHostsAreProtectedCaseInsensitivelyByDefault() {
+    func testBrowserHostsAreProtectedCaseInsensitivelyWhenEnabled() {
         let engine = makeEngine()
         let browserHost = makeRegularApp(bundleIdentifier: "COM.GOOGLE.CHROME", name: "Google Chrome")
+        var settings = AppSettings.default
+        settings.safetyOptions.protectBrowserHosts = true
 
-        let decision = engine.evaluate(app: browserHost, pollResult: .windows([]), settings: .default, attempt: 0)
+        let decision = engine.evaluate(app: browserHost, pollResult: .windows([]), settings: settings, attempt: 0)
 
         XCTAssertEqual(decision, .skip(reason: "Protected browser host"))
     }
 
     @MainActor
-    func testSafariWebAppWrappersAreProtectedByDefault() {
+    func testSafariWebAppWrappersAreProtectedWhenEnabled() {
         let engine = makeEngine()
         let webApp = makeRegularApp(bundleIdentifier: "com.apple.Safari.WebApp.12345678", name: "Dashboard")
+        var settings = AppSettings.default
+        settings.safetyOptions.protectBrowserHosts = true
 
-        let decision = engine.evaluate(app: webApp, pollResult: .windows([]), settings: .default, attempt: 0)
+        let decision = engine.evaluate(app: webApp, pollResult: .windows([]), settings: settings, attempt: 0)
 
         XCTAssertEqual(decision, .skip(reason: "Protected browser web app"))
     }
 
     @MainActor
-    func testChromiumWebAppWrappersAreProtectedByDefault() {
+    func testChromiumWebAppWrappersAreProtectedWhenEnabled() {
         let engine = makeEngine()
         let webApp = makeRegularApp(bundleIdentifier: "COM.GOOGLE.CHROME.APP.ABCDEF", name: "Docs")
+        var settings = AppSettings.default
+        settings.safetyOptions.protectBrowserHosts = true
 
-        let decision = engine.evaluate(app: webApp, pollResult: .windows([]), settings: .default, attempt: 0)
+        let decision = engine.evaluate(app: webApp, pollResult: .windows([]), settings: settings, attempt: 0)
 
         XCTAssertEqual(decision, .skip(reason: "Protected browser web app"))
     }
 
     @MainActor
-    func testExplicitIncludeStillPreservesBrowserHostByDefault() {
+    func testExplicitIncludeStillPreservesBrowserHostWhenProtectionIsEnabled() {
         let engine = makeEngine()
         var settings = AppSettings.default
         settings.ruleMode = .onlyIncluded
+        settings.safetyOptions.protectBrowserHosts = true
         settings.trackedApps = [
             TrackedAppRule(
                 bundleIdentifier: "com.google.Chrome",
@@ -335,6 +342,107 @@ final class TerminationEngineTests: XCTestCase {
     }
 
     @MainActor
+    func testLastStandardSafariWindowQuitsByDefault() {
+        let engine = makeEngine()
+        let window = standardWindow(title: "Safari")
+        let event = closeButtonClickEvent(clickedWindow: window, windows: [window])
+        let safari = makeRegularApp(bundleIdentifier: "com.apple.Safari", name: "Safari")
+
+        let decision = engine.evaluateCloseButtonClick(app: safari, event: event, settings: .default)
+
+        XCTAssertEqual(decision, .terminate)
+    }
+
+    @MainActor
+    func testCloseButtonLeavesAppRunningWhenAnotherStandardWindowIsOpen() {
+        let engine = makeEngine()
+        let clickedWindow = standardWindow(title: "Document 1")
+        let otherWindow = standardWindow(title: "Document 2")
+        let event = closeButtonClickEvent(clickedWindow: clickedWindow, windows: [clickedWindow, otherWindow])
+
+        let decision = engine.evaluateCloseButtonClick(app: makeRegularApp(), event: event, settings: .default)
+
+        XCTAssertEqual(decision, .skip(reason: "App still has 2 standard windows"))
+    }
+
+    @MainActor
+    func testDialogDoesNotPreventLastStandardWindowFromQuitting() {
+        let engine = makeEngine()
+        let clickedWindow = standardWindow(title: "Document")
+        let dialog = WindowSnapshot(
+            role: kAXWindowRole as String,
+            subrole: kAXDialogSubrole as String,
+            title: "Open",
+            isMinimized: false
+        )
+        let event = closeButtonClickEvent(clickedWindow: clickedWindow, windows: [clickedWindow, dialog])
+
+        let decision = engine.evaluateCloseButtonClick(app: makeRegularApp(), event: event, settings: .default)
+
+        XCTAssertEqual(decision, .terminate)
+    }
+
+    @MainActor
+    func testCloseButtonSkipsWhenClickedWindowWasNotInPreCloseSnapshot() {
+        let engine = makeEngine()
+        let clickedWindow = standardWindow(title: "Document")
+        let event = closeButtonClickEvent(clickedWindow: clickedWindow, windows: [], clickedWindowIsPresent: false)
+
+        let decision = engine.evaluateCloseButtonClick(app: makeRegularApp(), event: event, settings: .default)
+
+        XCTAssertEqual(decision, .skip(reason: "Clicked window was not present in the pre-close window list"))
+    }
+
+    @MainActor
+    func testCloseButtonSkipsNonstandardWindow() {
+        let engine = makeEngine()
+        let dialog = WindowSnapshot(
+            role: kAXWindowRole as String,
+            subrole: kAXDialogSubrole as String,
+            title: "Open",
+            isMinimized: false
+        )
+        let event = closeButtonClickEvent(clickedWindow: dialog, windows: [dialog])
+
+        let decision = engine.evaluateCloseButtonClick(app: makeRegularApp(), event: event, settings: .default)
+
+        XCTAssertEqual(decision, .skip(reason: "Clicked close button does not belong to a standard window"))
+    }
+
+    @MainActor
+    func testCloseButtonSkipsAmbiguousWindowSnapshot() {
+        let engine = makeEngine()
+        let clickedWindow = standardWindow(title: "Document")
+        let event = CloseButtonClickEvent(
+            pid: 42,
+            clickedWindow: clickedWindow,
+            pollResult: .ambiguous("cannotComplete"),
+            clickedWindowIsPresent: true
+        )
+
+        let decision = engine.evaluateCloseButtonClick(app: makeRegularApp(), event: event, settings: .default)
+
+        XCTAssertEqual(decision, .skip(reason: "AX state ambiguous: cannotComplete"))
+    }
+
+    @MainActor
+    func testMinimizedStandardWindowStillCountsAsAnotherWindowByDefault() {
+        let engine = makeEngine()
+        let clickedWindow = standardWindow(title: "Visible")
+        let minimizedWindow = WindowSnapshot(
+            role: kAXWindowRole as String,
+            subrole: kAXStandardWindowSubrole as String,
+            title: "Minimized",
+            isMinimized: true
+        )
+        let event = closeButtonClickEvent(clickedWindow: clickedWindow, windows: [clickedWindow, minimizedWindow])
+
+        let decision = engine.evaluateCloseButtonClick(app: makeRegularApp(), event: event, settings: .default)
+
+        XCTAssertEqual(decision, .skip(reason: "App still has 2 standard windows"))
+    }
+
+    @MainActor
     private func makeEngine() -> TerminationEngine {
         TerminationEngine(
             protectedBundleIdentifiers: ApplicationCatalog.protectedBundleIdentifiers,
@@ -356,6 +464,30 @@ final class TerminationEngineTests: XCTestCase {
             localizedName: name,
             activationPolicy: activationPolicy,
             isHidden: isHidden
+        )
+    }
+
+    @MainActor
+    private func standardWindow(title: String) -> WindowSnapshot {
+        WindowSnapshot(
+            role: kAXWindowRole as String,
+            subrole: kAXStandardWindowSubrole as String,
+            title: title,
+            isMinimized: false
+        )
+    }
+
+    @MainActor
+    private func closeButtonClickEvent(
+        clickedWindow: WindowSnapshot,
+        windows: [WindowSnapshot],
+        clickedWindowIsPresent: Bool = true
+    ) -> CloseButtonClickEvent {
+        CloseButtonClickEvent(
+            pid: 42,
+            clickedWindow: clickedWindow,
+            pollResult: .windows(windows),
+            clickedWindowIsPresent: clickedWindowIsPresent
         )
     }
 
@@ -438,22 +570,5 @@ final class TerminationCooldownTrackerTests: XCTestCase {
 
         XCTAssertTrue(tracker.clear(for: 42))
         XCTAssertFalse(tracker.isCoolingDown(for: 42, now: now))
-    }
-}
-
-@MainActor
-final class AccessibilityNotificationHandlingPolicyTests: XCTestCase {
-    func testWindowRegistrationRefreshesForCreatedFocusedAndShownNotifications() {
-        let policy = AccessibilityNotificationHandlingPolicy()
-
-        XCTAssertTrue(policy.shouldRefreshWindowRegistrations(for: kAXWindowCreatedNotification as String))
-        XCTAssertTrue(policy.shouldRefreshWindowRegistrations(for: kAXFocusedWindowChangedNotification as String))
-        XCTAssertTrue(policy.shouldRefreshWindowRegistrations(for: kAXApplicationShownNotification as String))
-    }
-
-    func testWindowRegistrationDoesNotRefreshForDestroyNotifications() {
-        let policy = AccessibilityNotificationHandlingPolicy()
-
-        XCTAssertFalse(policy.shouldRefreshWindowRegistrations(for: kAXUIElementDestroyedNotification as String))
     }
 }

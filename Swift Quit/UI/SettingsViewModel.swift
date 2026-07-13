@@ -54,26 +54,10 @@ final class SettingsViewModel: ObservableObject {
         }
     }
 
-    @Published var closeDelaySeconds = AppSettings.default.closeDelaySeconds {
-        didSet {
-            guard !isSynchronizing else { return }
-
-            closeDelaySeconds = max(1, closeDelaySeconds)
-            settingsStore.update { $0.closeDelaySeconds = closeDelaySeconds }
-        }
-    }
-
     @Published var ruleMode = AppSettings.default.ruleMode {
         didSet {
             guard !isSynchronizing, ruleMode != oldValue else { return }
             settingsStore.update { $0.ruleMode = ruleMode }
-        }
-    }
-
-    @Published var safetyProfile = AppSettings.default.safetyProfile {
-        didSet {
-            guard !isSynchronizing, safetyProfile != oldValue else { return }
-            settingsStore.update { $0.safetyProfile = safetyProfile }
         }
     }
 
@@ -143,24 +127,16 @@ final class SettingsViewModel: ObservableObject {
         trackedApps.map(applicationCatalog.resolvedRule(for:))
     }
 
-    var closeDelaySummary: String {
-        closeDelaySeconds == 1 ? "1 second" : "\(closeDelaySeconds) seconds"
-    }
-
     var ruleModeSummary: String {
         ruleMode.detail
     }
 
-    var safetyProfileSummary: String {
-        safetyProfile.detail
-    }
-
     var activeSafetySummary: String {
         [
-            protectBrowserHosts ? "Browser hosts" : nil,
-            protectAccessoryApps ? "Accessory apps" : nil,
+            protectBrowserHosts ? "Browsers and web apps" : nil,
+            protectAccessoryApps ? "Accessory and background apps" : nil,
             countMinimizedWindowsAsOpen ? "Minimized windows" : nil,
-            countHiddenWindowsAsOpen ? "Hidden apps/windows" : nil,
+            countHiddenWindowsAsOpen ? "Hidden apps and windows" : nil,
         ]
         .compactMap { $0 }
         .joined(separator: ", ")
@@ -222,9 +198,7 @@ final class SettingsViewModel: ObservableObject {
         let settings = settingsStore.settings
         menuBarIconEnabled = settings.menuBarIconEnabled
         launchHidden = settings.launchHidden
-        closeDelaySeconds = settings.closeDelaySeconds
         ruleMode = settings.ruleMode
-        safetyProfile = settings.safetyProfile
         protectBrowserHosts = settings.safetyOptions.protectBrowserHosts
         protectAccessoryApps = settings.safetyOptions.protectAccessoryApps
         countMinimizedWindowsAsOpen = settings.safetyOptions.countMinimizedWindowsAsOpen

@@ -105,6 +105,26 @@ struct WindowSnapshot: Equatable, Identifiable {
 
         return true
     }
+
+    nonisolated var isStandardWindow: Bool {
+        role == kAXWindowRole as String && subrole == kAXStandardWindowSubrole as String
+    }
+
+    nonisolated func qualifiesAsStandardWindow(using safetyOptions: SafetyOptions) -> Bool {
+        guard isStandardWindow else {
+            return false
+        }
+
+        if isMinimized {
+            return safetyOptions.countMinimizedWindowsAsOpen
+        }
+
+        if case .hidden = visibility {
+            return safetyOptions.countHiddenWindowsAsOpen
+        }
+
+        return true
+    }
 }
 
 struct TerminationEngine {
@@ -128,49 +148,8 @@ struct TerminationEngine {
         settings: AppSettings,
         attempt: Int
     ) -> TerminationDecision {
-        let normalizedBundleIdentifier = app.bundleIdentifier?.normalizedBundleIdentifier
-
-        if let bundleIdentifier = normalizedBundleIdentifier,
-           protectedBundleIdentifiers.contains(bundleIdentifier) {
-            return .skip(reason: "Protected system app")
-        }
-
-        let matchingRule = settings.trackedApps.first {
-            $0.matches(bundleIdentifier: app.bundleIdentifier, bundleURL: app.bundleURL)
-        }
-
-        let isExplicitlyIncluded = settings.ruleMode == .onlyIncluded && matchingRule != nil
-
-        switch settings.ruleMode {
-        case .onlyIncluded:
-            guard isExplicitlyIncluded else {
-                return .skip(reason: "App is not included")
-            }
-        case .allExceptExcluded:
-            if matchingRule != nil {
-                return .skip(reason: "App is explicitly excluded")
-            }
-        }
-
-        if settings.safetyOptions.protectAccessoryApps {
-            guard app.activationPolicy == .regular else {
-                return .skip(reason: "Non-regular application")
-            }
-        }
-
-        if app.isHidden, settings.safetyOptions.countHiddenWindowsAsOpen {
-            return .skip(reason: "Application is hidden")
-        }
-
-        if settings.safetyOptions.protectBrowserHosts,
-           let bundleIdentifier = normalizedBundleIdentifier {
-            if browserHostBundleIdentifiers.contains(bundleIdentifier) {
-                return .skip(reason: "Protected browser host")
-            }
-
-            if isBrowserWebAppBundleIdentifier(bundleIdentifier) {
-                return .skip(reason: "Protected browser web app")
-            }
+        if let eligibilityDecision = eligibilityDecision(app: app, settings: settings) {
+            return eligibilityDecision
         }
 
         switch pollResult {
@@ -206,6 +185,88 @@ struct TerminationEngine {
                 return .terminate
             }
         }
+    }
+
+    func evaluateCloseButtonClick(
+        app: ApplicationSnapshot,
+        event: CloseButtonClickEvent,
+        settings: AppSettings
+    ) -> TerminationDecision {
+        if let eligibilityDecision = eligibilityDecision(app: app, settings: settings) {
+            return eligibilityDecision
+        }
+
+        guard event.clickedWindow.isStandardWindow else {
+            return .skip(reason: "Clicked close button does not belong to a standard window")
+        }
+
+        guard event.clickedWindowIsPresent else {
+            return .skip(reason: "Clicked window was not present in the pre-close window list")
+        }
+
+        switch event.pollResult {
+        case .ambiguous(let reason):
+            return .skip(reason: "AX state ambiguous: \(reason)")
+
+        case .windows(let windows):
+            let standardWindows = windows.filter {
+                $0.qualifiesAsStandardWindow(using: settings.safetyOptions)
+            }
+
+            guard standardWindows.count == 1 else {
+                let reason = standardWindows.isEmpty
+                    ? "No standard window was confirmed"
+                    : "App still has \(standardWindows.count) standard windows"
+                return .skip(reason: reason)
+            }
+
+            return .terminate
+        }
+    }
+
+    private func eligibilityDecision(app: ApplicationSnapshot, settings: AppSettings) -> TerminationDecision? {
+        let normalizedBundleIdentifier = app.bundleIdentifier?.normalizedBundleIdentifier
+
+        if let bundleIdentifier = normalizedBundleIdentifier,
+           protectedBundleIdentifiers.contains(bundleIdentifier) {
+            return .skip(reason: "Protected system app")
+        }
+
+        let matchingRule = settings.trackedApps.first {
+            $0.matches(bundleIdentifier: app.bundleIdentifier, bundleURL: app.bundleURL)
+        }
+
+        switch settings.ruleMode {
+        case .onlyIncluded:
+            guard matchingRule != nil else {
+                return .skip(reason: "App is not included")
+            }
+        case .allExceptExcluded:
+            if matchingRule != nil {
+                return .skip(reason: "App is explicitly excluded")
+            }
+        }
+
+        if settings.safetyOptions.protectAccessoryApps, app.activationPolicy != .regular {
+            return .skip(reason: "Non-regular application")
+        }
+
+        if app.isHidden, settings.safetyOptions.countHiddenWindowsAsOpen {
+            return .skip(reason: "Application is hidden")
+        }
+
+        if settings.safetyOptions.protectBrowserHosts,
+           let bundleIdentifier = normalizedBundleIdentifier {
+            if browserHostBundleIdentifiers.contains(bundleIdentifier) {
+                return .skip(reason: "Protected browser host")
+            }
+
+            if isBrowserWebAppBundleIdentifier(bundleIdentifier) {
+                return .skip(reason: "Protected browser web app")
+            }
+        }
+
+        return nil
     }
 
     private static func normalized(identifiers: Set<String>) -> Set<String> {

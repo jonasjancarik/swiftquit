@@ -129,8 +129,8 @@ final class TerminationController {
         self.now = now
         self.cooldownTracker = TerminationCooldownTracker(cooldownDuration: configuration.refusalCooldown)
 
-        self.monitor.windowChangeHandler = { [weak self] pid in
-            self?.handleWindowChange(for: pid)
+        self.monitor.closeButtonClickHandler = { [weak self] event in
+            self?.handleCloseButtonClick(event)
         }
     }
 
@@ -154,115 +154,71 @@ final class TerminationController {
         AppLoggers.termination.info("Termination monitoring \(isPaused ? "paused" : "resumed", privacy: .public)")
     }
 
-    private func handleWindowChange(for pid: pid_t) {
-        guard pid != ProcessInfo.processInfo.processIdentifier else {
+    private func handleCloseButtonClick(_ event: CloseButtonClickEvent) {
+        guard event.pid != ProcessInfo.processInfo.processIdentifier else {
             return
         }
 
         guard !isPaused else {
-            AppLoggers.termination.debug("Ignoring window change for PID \(pid, privacy: .public) while monitoring is paused")
+            AppLoggers.termination.debug("Ignoring close-button click for PID \(event.pid, privacy: .public) while monitoring is paused")
             return
         }
 
-        guard !pendingTerminationVerificationPIDs.contains(pid) else {
-            AppLoggers.termination.debug("Ignoring window change for PID \(pid, privacy: .public) while quit verification is pending")
+        guard !pendingTerminationVerificationPIDs.contains(event.pid) else {
+            AppLoggers.termination.debug("Ignoring close-button click for PID \(event.pid, privacy: .public) while quit verification is pending")
             return
         }
 
-        cancelTask(for: pid)
-        scheduleEvaluation(for: pid, attempt: 0, after: TimeInterval(settingsStore.settings.closeDelaySeconds))
-    }
-
-    private func scheduleEvaluation(for pid: pid_t, attempt: Int, after delay: TimeInterval) {
-        tasksByPID[pid] = Task { [weak self] in
-            guard let self else {
-                return
-            }
-
-            if delay > 0 {
-                try? await Task.sleep(for: .seconds(delay))
-            }
-
-            guard !Task.isCancelled else {
-                return
-            }
-
-            self.evaluate(pid: pid, attempt: attempt)
-        }
-    }
-
-    private func evaluate(pid: pid_t, attempt: Int) {
-        guard let application = NSRunningApplication(processIdentifier: pid), !application.isTerminated else {
-            clearTracking(for: pid)
+        guard let application = NSRunningApplication(processIdentifier: event.pid), !application.isTerminated else {
+            clearTracking(for: event.pid)
             return
         }
 
         let appName = application.localizedName ?? "<unknown>"
         let settings = settingsStore.settings
-        let pollResult = monitor.pollWindows(for: application)
-
-        if cooldownTracker.clearIfAppHasOpenWindows(
-            for: pid,
-            pollResult: pollResult,
-            safetyOptions: settings.safetyOptions
-        ) {
-            AppLoggers.termination.debug("Cleared cooldown for PID \(pid, privacy: .public) because open windows returned")
-        }
-
-        let decision = engine.evaluate(
+        let decision = engine.evaluateCloseButtonClick(
             app: ApplicationSnapshot(application: application),
-            pollResult: pollResult,
-            settings: settings,
-            attempt: attempt
+            event: event,
+            settings: settings
         )
-        let pollSummary = pollDescription(pollResult, safetyOptions: settings.safetyOptions)
+        let pollSummary = pollDescription(event, safetyOptions: settings.safetyOptions)
         let decisionSummary = decisionDescription(decision)
 
         AppLoggers.termination.debug(
-            "Evaluated PID \(pid, privacy: .public) (\(appName, privacy: .public)): poll=\(pollSummary, privacy: .public), decision=\(decisionSummary, privacy: .public)"
+            "Evaluated close-button click for PID \(event.pid, privacy: .public) (\(appName, privacy: .public)): poll=\(pollSummary, privacy: .public), decision=\(decisionSummary, privacy: .public)"
         )
         diagnostics.record(
             appName: appName,
-            pid: pid,
+            pid: event.pid,
             pollSummary: pollSummary,
             decisionSummary: decisionSummary,
             now: now()
         )
 
-        if cooldownTracker.isCoolingDown(for: pid, now: now()) {
-            switch decision {
-            case .skip:
-                break
-            case .retry, .terminate:
-                AppLoggers.termination.notice("Suppressing PID \(pid, privacy: .public) while quit cooldown is active")
-                cancelTask(for: pid)
-                return
+        if cooldownTracker.isCoolingDown(for: event.pid, now: now()) {
+            if case .terminate = decision {
+                AppLoggers.termination.notice("Suppressing PID \(event.pid, privacy: .public) while quit cooldown is active")
             }
+            return
         }
 
         switch decision {
         case .terminate:
-            attemptTermination(application, pid: pid)
+            attemptTermination(application, pid: event.pid)
 
         case .skip(let reason):
-            AppLoggers.termination.debug("Skipping termination for PID \(pid, privacy: .public): \(reason, privacy: .public)")
-            cancelTask(for: pid)
+            AppLoggers.termination.debug("Skipping termination for PID \(event.pid, privacy: .public): \(reason, privacy: .public)")
 
-        case .retry(let delay, let reason):
-            AppLoggers.termination.debug("Retrying termination check for PID \(pid, privacy: .public): \(reason, privacy: .public)")
-            scheduleEvaluation(for: pid, attempt: attempt + 1, after: delay)
+        case .retry(_, let reason):
+            AppLoggers.termination.debug("Close-button evaluation cannot retry for PID \(event.pid, privacy: .public): \(reason, privacy: .public)")
         }
-    }
-
-    private func cancelTask(for pid: pid_t) {
-        tasksByPID[pid]?.cancel()
-        tasksByPID.removeValue(forKey: pid)
     }
 
     private func clearTracking(for pid: pid_t) {
         pendingTerminationVerificationPIDs.remove(pid)
         _ = cooldownTracker.clear(for: pid)
-        cancelTask(for: pid)
+        tasksByPID[pid]?.cancel()
+        tasksByPID.removeValue(forKey: pid)
     }
 
     private func attemptTermination(_ application: NSRunningApplication, pid: pid_t) {
@@ -275,12 +231,10 @@ final class TerminationController {
             AppLoggers.termination.notice(
                 "Terminate request was refused for PID \(pid, privacy: .public); entering cooldown until \(expirationDate.formatted(), privacy: .public)"
             )
-            cancelTask(for: pid)
             return
         }
 
         pendingTerminationVerificationPIDs.insert(pid)
-        AppLoggers.termination.debug("Terminate request accepted for PID \(pid, privacy: .public); verifying shutdown after grace period")
         scheduleGraceCheck(for: pid, appName: appName)
     }
 
@@ -305,11 +259,12 @@ final class TerminationController {
     private func verifyTerminationOutcome(for pid: pid_t, appName: String) {
         defer {
             pendingTerminationVerificationPIDs.remove(pid)
+            tasksByPID.removeValue(forKey: pid)
         }
 
         guard let application = NSRunningApplication(processIdentifier: pid), !application.isTerminated else {
             AppLoggers.termination.info("\(appName, privacy: .public) terminated successfully")
-            clearTracking(for: pid)
+            _ = cooldownTracker.clear(for: pid)
             return
         }
 
@@ -317,16 +272,15 @@ final class TerminationController {
         AppLoggers.termination.notice(
             "\(appName, privacy: .public) remained alive after a quit request; entering cooldown until \(expirationDate.formatted(), privacy: .public)"
         )
-        cancelTask(for: pid)
     }
 
-    private func pollDescription(_ pollResult: WindowPollResult, safetyOptions: SafetyOptions) -> String {
-        switch pollResult {
+    private func pollDescription(_ event: CloseButtonClickEvent, safetyOptions: SafetyOptions) -> String {
+        switch event.pollResult {
         case .ambiguous(let reason):
             return "ambiguous(\(reason))"
         case .windows(let windows):
-            let qualifyingCount = windows.filter { $0.qualifiesAsOpen(using: safetyOptions) }.count
-            return "windows(total: \(windows.count), qualifying: \(qualifyingCount))"
+            let standardCount = windows.filter { $0.qualifiesAsStandardWindow(using: safetyOptions) }.count
+            return "preCloseWindows(total: \(windows.count), standard: \(standardCount), clickedPresent: \(event.clickedWindowIsPresent))"
         }
     }
 

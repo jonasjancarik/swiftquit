@@ -9,43 +9,20 @@ import Foundation
 
 @MainActor
 protocol AccessibilityMonitoring: AnyObject {
-    var windowChangeHandler: ((pid_t) -> Void)? { get set }
+    var closeButtonClickHandler: ((CloseButtonClickEvent) -> Void)? { get set }
     func refreshTrustedState(isTrusted: Bool)
     func stop()
-    func pollWindows(for application: NSRunningApplication) -> WindowPollResult
 }
 
-struct AccessibilityNotificationHandlingPolicy {
-    func shouldRefreshWindowRegistrations(for notification: String) -> Bool {
-        [
-            kAXWindowCreatedNotification as String,
-            kAXFocusedWindowChangedNotification as String,
-            kAXApplicationShownNotification as String,
-        ].contains(notification)
-    }
+struct CloseButtonClickEvent: Equatable {
+    let pid: pid_t
+    let clickedWindow: WindowSnapshot
+    let pollResult: WindowPollResult
+    let clickedWindowIsPresent: Bool
 }
 
 @MainActor
 final class AccessibilityMonitor: AccessibilityMonitoring {
-    nonisolated private static let callback: AXObserverCallback = { _, element, notification, refcon in
-        guard let refcon else {
-            return
-        }
-
-        let monitor = Unmanaged<AccessibilityMonitor>.fromOpaque(refcon).takeUnretainedValue()
-        let notificationName = notification as String
-        var pid: pid_t = 0
-        AXUIElementGetPid(element, &pid)
-
-        guard pid > 0 else {
-            return
-        }
-
-        Task { @MainActor in
-            monitor.handleNotification(pid: pid, notification: notificationName)
-        }
-    }
-
     private enum WindowElementCopyResult {
         case success([AXUIElement])
         case failure(AXError)
@@ -64,13 +41,11 @@ final class AccessibilityMonitor: AccessibilityMonitoring {
         case failure(String)
     }
 
-    var windowChangeHandler: ((pid_t) -> Void)?
+    var closeButtonClickHandler: ((CloseButtonClickEvent) -> Void)?
 
-    private let notificationHandlingPolicy = AccessibilityNotificationHandlingPolicy()
+    private let systemWideElement = AXUIElementCreateSystemWide()
+    private var globalMouseMonitor: Any?
     private var isTrusted = false
-    private var observers: [pid_t: AXObserver] = [:]
-    private var launchObserver: NSObjectProtocol?
-    private var terminateObserver: NSObjectProtocol?
 
     func refreshTrustedState(isTrusted: Bool) {
         guard self.isTrusted != isTrusted else {
@@ -90,189 +65,144 @@ final class AccessibilityMonitor: AccessibilityMonitoring {
     }
 
     func stop() {
-        if let launchObserver {
-            NSWorkspace.shared.notificationCenter.removeObserver(launchObserver)
-            self.launchObserver = nil
-        }
-
-        if let terminateObserver {
-            NSWorkspace.shared.notificationCenter.removeObserver(terminateObserver)
-            self.terminateObserver = nil
-        }
-
-        observers.values.forEach {
-            CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource($0), .commonModes)
-        }
-        observers.removeAll()
-    }
-
-    func pollWindows(for application: NSRunningApplication) -> WindowPollResult {
-        guard isTrusted else {
-            return .ambiguous("Accessibility permission missing")
-        }
-
-        let appElement = AXUIElementCreateApplication(application.processIdentifier)
-
-        switch copyWindowElements(for: appElement) {
-        case .failure(let error):
-            return .ambiguous("Failed to copy AX windows: \(describe(error: error))")
-        case .success(let windows):
-            var snapshots: [WindowSnapshot] = []
-
-            for window in windows {
-                switch snapshot(for: window) {
-                case .failure(let message):
-                    return .ambiguous(message)
-                case .stale:
-                    continue
-                case .success(let snapshot):
-                    snapshots.append(snapshot)
-                }
-            }
-
-            return .windows(snapshots)
+        if let globalMouseMonitor {
+            NSEvent.removeMonitor(globalMouseMonitor)
+            self.globalMouseMonitor = nil
         }
     }
 
     private func start() {
-        guard isTrusted else {
+        guard isTrusted, globalMouseMonitor == nil else {
             return
         }
 
-        if launchObserver == nil {
-            let notificationCenter = NSWorkspace.shared.notificationCenter
-
-            launchObserver = notificationCenter.addObserver(
-                forName: NSWorkspace.didLaunchApplicationNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] notification in
-                guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else {
-                    return
-                }
-
-                let processIdentifier = application.processIdentifier
-                Task { @MainActor [weak self] in
-                    guard let application = NSRunningApplication(processIdentifier: processIdentifier) else {
-                        return
-                    }
-
-                    self?.attach(to: application)
-                }
-            }
-
-            terminateObserver = notificationCenter.addObserver(
-                forName: NSWorkspace.didTerminateApplicationNotification,
-                object: nil,
-                queue: .main
-            ) { [weak self] notification in
-                guard let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication else {
-                    return
-                }
-
-                let processIdentifier = application.processIdentifier
-                Task { @MainActor [weak self] in
-                    self?.detachObserver(for: processIdentifier)
-                }
+        globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: .leftMouseDown) { [weak self] event in
+            MainActor.assumeIsolated {
+                self?.handleMouseDown(event)
             }
         }
 
-        for application in NSWorkspace.shared.runningApplications {
-            attach(to: application)
+        if globalMouseMonitor == nil {
+            AppLoggers.accessibility.error("Failed to install the global close-button mouse monitor")
+        } else {
+            AppLoggers.accessibility.info("Global close-button mouse monitor started")
         }
     }
 
-    private func attach(to application: NSRunningApplication) {
-        guard shouldObserve(application) else {
+    private func handleMouseDown(_ event: NSEvent) {
+        guard isTrusted, let screenPoint = screenPoint(for: event) else {
             return
         }
 
-        if observers[application.processIdentifier] != nil {
+        var hitElement: AXUIElement?
+        let hitResult = AXUIElementCopyElementAtPosition(
+            systemWideElement,
+            Float(screenPoint.x),
+            Float(screenPoint.y),
+            &hitElement
+        )
+
+        guard hitResult == .success,
+              let hitElement,
+              copyStringAttribute(kAXSubroleAttribute as CFString, from: hitElement).value == kAXCloseButtonSubrole as String else {
             return
         }
 
-        var observerReference: AXObserver?
-        let createResult = AXObserverCreate(application.processIdentifier, Self.callback, &observerReference)
-
-        guard createResult == .success, let observerReference else {
-            AppLoggers.accessibility.debug("Skipping PID \(application.processIdentifier, privacy: .public) AX observer: \(self.describe(error: createResult), privacy: .public)")
+        switch copyOptionalBoolAttribute(kAXEnabledAttribute as CFString, from: hitElement) {
+        case .value(true):
+            break
+        case .value(false), .unknown, .stale, .failure:
             return
         }
 
-        observers[application.processIdentifier] = observerReference
-        CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observerReference), .commonModes)
-
-        let applicationElement = AXUIElementCreateApplication(application.processIdentifier)
-        let refcon = Unmanaged.passUnretained(self).toOpaque()
-
-        register(notification: kAXWindowCreatedNotification as CFString, on: applicationElement, observer: observerReference, refcon: refcon)
-        register(notification: kAXApplicationHiddenNotification as CFString, on: applicationElement, observer: observerReference, refcon: refcon)
-        register(notification: kAXApplicationShownNotification as CFString, on: applicationElement, observer: observerReference, refcon: refcon)
-        register(notification: kAXFocusedWindowChangedNotification as CFString, on: applicationElement, observer: observerReference, refcon: refcon)
-
-        registerCurrentWindows(for: application.processIdentifier, observer: observerReference, refcon: refcon)
-    }
-
-    private func detachObserver(for pid: pid_t) {
-        guard let observer = observers.removeValue(forKey: pid) else {
+        var pid: pid_t = 0
+        guard AXUIElementGetPid(hitElement, &pid) == .success,
+              pid > 0,
+              pid != ProcessInfo.processInfo.processIdentifier,
+              let clickedWindow = containingWindow(for: hitElement) else {
             return
         }
 
-        CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .commonModes)
-    }
+        guard case .success(let clickedWindowSnapshot) = snapshot(for: clickedWindow) else {
+            return
+        }
 
-    private func registerCurrentWindows(for pid: pid_t, observer: AXObserver, refcon: UnsafeMutableRawPointer) {
         let applicationElement = AXUIElementCreateApplication(pid)
 
         switch copyWindowElements(for: applicationElement) {
         case .failure(let error):
-            AppLoggers.accessibility.debug("Failed to register current windows for PID \(pid, privacy: .public): \(self.describe(error: error), privacy: .public)")
+            closeButtonClickHandler?(
+                CloseButtonClickEvent(
+                    pid: pid,
+                    clickedWindow: clickedWindowSnapshot,
+                    pollResult: .ambiguous("Failed to copy AX windows: \(describe(error: error))"),
+                    clickedWindowIsPresent: false
+                )
+            )
+
         case .success(let windows):
-            windows.forEach { registerWindowNotifications(for: $0, observer: observer, refcon: refcon) }
+            let clickedWindowIsPresent = windows.contains { CFEqual($0, clickedWindow) }
+            var snapshots: [WindowSnapshot] = []
+
+            for window in windows {
+                switch snapshot(for: window) {
+                case .success(let windowSnapshot):
+                    snapshots.append(windowSnapshot)
+                case .stale:
+                    closeButtonClickHandler?(
+                        CloseButtonClickEvent(
+                            pid: pid,
+                            clickedWindow: clickedWindowSnapshot,
+                            pollResult: .ambiguous("A window disappeared during the close-button check"),
+                            clickedWindowIsPresent: clickedWindowIsPresent
+                        )
+                    )
+                    return
+                case .failure(let message):
+                    closeButtonClickHandler?(
+                        CloseButtonClickEvent(
+                            pid: pid,
+                            clickedWindow: clickedWindowSnapshot,
+                            pollResult: .ambiguous(message),
+                            clickedWindowIsPresent: clickedWindowIsPresent
+                        )
+                    )
+                    return
+                }
+            }
+
+            closeButtonClickHandler?(
+                CloseButtonClickEvent(
+                    pid: pid,
+                    clickedWindow: clickedWindowSnapshot,
+                    pollResult: .windows(snapshots),
+                    clickedWindowIsPresent: clickedWindowIsPresent
+                )
+            )
         }
     }
 
-    private func registerWindowNotifications(for element: AXUIElement, observer: AXObserver, refcon: UnsafeMutableRawPointer) {
-        register(notification: kAXUIElementDestroyedNotification as CFString, on: element, observer: observer, refcon: refcon)
-        register(notification: kAXWindowMiniaturizedNotification as CFString, on: element, observer: observer, refcon: refcon)
-        register(notification: kAXWindowDeminiaturizedNotification as CFString, on: element, observer: observer, refcon: refcon)
-        register(notification: kAXWindowMovedNotification as CFString, on: element, observer: observer, refcon: refcon)
-        register(notification: kAXWindowResizedNotification as CFString, on: element, observer: observer, refcon: refcon)
+    private func screenPoint(for event: NSEvent) -> CGPoint? {
+        event.cgEvent?.location
     }
 
-    private func register(
-        notification: CFString,
-        on element: AXUIElement,
-        observer: AXObserver,
-        refcon: UnsafeMutableRawPointer
-    ) {
-        let result = AXObserverAddNotification(observer, element, notification, refcon)
+    private func containingWindow(for element: AXUIElement) -> AXUIElement? {
+        var currentElement = element
 
-        switch result {
-        case .success, .notificationAlreadyRegistered, .notificationUnsupported:
-            return
-        default:
-            AppLoggers.accessibility.debug("AXObserverAddNotification failed: \(self.describe(error: result), privacy: .public)")
-        }
-    }
+        for _ in 0..<8 {
+            let role = copyStringAttribute(kAXRoleAttribute as CFString, from: currentElement).value
+            if role == kAXWindowRole as String || role == kAXSheetRole as String {
+                return currentElement
+            }
 
-    private func handleNotification(pid: pid_t, notification: String) {
-        if notificationHandlingPolicy.shouldRefreshWindowRegistrations(for: notification),
-           let observer = observers[pid] {
-            let refcon = Unmanaged.passUnretained(self).toOpaque()
-            registerCurrentWindows(for: pid, observer: observer, refcon: refcon)
+            guard let parent = copyElementAttribute(kAXParentAttribute as CFString, from: currentElement) else {
+                return nil
+            }
+
+            currentElement = parent
         }
 
-        windowChangeHandler?(pid)
-    }
-
-    private func shouldObserve(_ application: NSRunningApplication) -> Bool {
-        guard isTrusted else {
-            return false
-        }
-
-        let pid = application.processIdentifier
-        return pid > 0 && pid != ProcessInfo.processInfo.processIdentifier && !application.isTerminated
+        return nil
     }
 
     private func copyWindowElements(for applicationElement: AXUIElement) -> WindowElementCopyResult {
@@ -341,10 +271,20 @@ final class AccessibilityMonitor: AccessibilityMonitoring {
         )
     }
 
+    private func copyElementAttribute(_ attribute: CFString, from element: AXUIElement) -> AXUIElement? {
+        var value: CFTypeRef?
+        guard AXUIElementCopyAttributeValue(element, attribute, &value) == .success,
+              let value,
+              CFGetTypeID(value) == AXUIElementGetTypeID() else {
+            return nil
+        }
+
+        return unsafeDowncast(value, to: AXUIElement.self)
+    }
+
     private func copyStringAttribute(_ attribute: CFString, from element: AXUIElement) -> (value: String?, error: AXError) {
         var value: CFTypeRef?
         let error = AXUIElementCopyAttributeValue(element, attribute, &value)
-
         return (value as? String, error)
     }
 
@@ -366,9 +306,7 @@ final class AccessibilityMonitor: AccessibilityMonitoring {
 
     private func snapshotFailure(attribute: String, error: AXError) -> WindowSnapshotResult {
         switch error {
-        case .invalidUIElement, .noValue:
-            .stale
-        case .attributeUnsupported:
+        case .invalidUIElement, .noValue, .attributeUnsupported:
             .stale
         default:
             .failure("Failed to copy \(attribute): \(describe(error: error))")
@@ -377,40 +315,23 @@ final class AccessibilityMonitor: AccessibilityMonitoring {
 
     private func describe(error: AXError) -> String {
         switch error {
-        case .success:
-            "success"
-        case .failure:
-            "failure"
-        case .illegalArgument:
-            "illegalArgument"
-        case .invalidUIElement:
-            "invalidUIElement"
-        case .invalidUIElementObserver:
-            "invalidUIElementObserver"
-        case .cannotComplete:
-            "cannotComplete"
-        case .attributeUnsupported:
-            "attributeUnsupported"
-        case .actionUnsupported:
-            "actionUnsupported"
-        case .notificationUnsupported:
-            "notificationUnsupported"
-        case .notImplemented:
-            "notImplemented"
-        case .notificationAlreadyRegistered:
-            "notificationAlreadyRegistered"
-        case .notificationNotRegistered:
-            "notificationNotRegistered"
-        case .apiDisabled:
-            "apiDisabled"
-        case .noValue:
-            "noValue"
-        case .parameterizedAttributeUnsupported:
-            "parameterizedAttributeUnsupported"
-        case .notEnoughPrecision:
-            "notEnoughPrecision"
-        @unknown default:
-            "unknown"
+        case .success: "success"
+        case .failure: "failure"
+        case .illegalArgument: "illegalArgument"
+        case .invalidUIElement: "invalidUIElement"
+        case .invalidUIElementObserver: "invalidUIElementObserver"
+        case .cannotComplete: "cannotComplete"
+        case .attributeUnsupported: "attributeUnsupported"
+        case .actionUnsupported: "actionUnsupported"
+        case .notificationUnsupported: "notificationUnsupported"
+        case .notImplemented: "notImplemented"
+        case .notificationAlreadyRegistered: "notificationAlreadyRegistered"
+        case .notificationNotRegistered: "notificationNotRegistered"
+        case .apiDisabled: "apiDisabled"
+        case .noValue: "noValue"
+        case .parameterizedAttributeUnsupported: "parameterizedAttributeUnsupported"
+        case .notEnoughPrecision: "notEnoughPrecision"
+        @unknown default: "unknown"
         }
     }
 }
