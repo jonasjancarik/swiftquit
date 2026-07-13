@@ -2,7 +2,17 @@
 
 Swift Quit is a dockless macOS menu bar utility that makes the red close button quit an app when it closes that app's last standard window.
 
-This fork targets `macOS 15+` and keeps the original product shape intact:
+When an app has multiple normal windows open, Swift Quit closes only the window whose red close button you clicked. When you close the app's last normal window, Swift Quit quits the app instead of leaving it running with no windows.
+
+For example, closing the last Pages or TextEdit document window quits the app instead of leaving it running and showing a document browser or file picker. Closing the last Safari window likewise quits Safari, while closing one of several windows leaves the others running. Swift Quit sends a normal quit request, so apps can still ask you to save unsaved work; those save prompts are not suppressed. Keyboard shortcuts such as Command-W are unchanged.
+
+## Fork Status
+
+This is an independent fork of [benkitia/swiftquit](https://github.com/benkitia/swiftquit), maintained by [Jonas Jancarik](https://github.com/jonasjancarik). It is not an official upstream release.
+
+This fork adds RedQuits-style last-window handling and targets `macOS 15+`. The original project history and GPLv3 license are preserved. This repository does not currently publish a signed and notarized binary; use the build instructions below.
+
+The fork keeps the original product shape intact:
 
 - menu bar utility with `LSUIElement = true`
 - explicit include or exclude rules for bundled apps
